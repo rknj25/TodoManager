@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -21,23 +21,22 @@ function Dashboard() {
     );
 
     const [todos, setTodos] = useState([]);
-
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-
     const [editId, setEditId] = useState(null);
 
     // Get all todos for the logged-in user
-    const fetchTodos = async () => {
+    const fetchTodos = useCallback(async () => {
+        if (!userId) return;
+
         try {
             const response = await axios.get(`${API}/${userId}`);
-
             setTodos(response.data.data || []);
         } catch (error) {
             console.log("Error fetching todos:", error);
             alert("Unable to load todos.");
         }
-    };
+    }, [API, userId]);
 
     useEffect(() => {
         if (!userId) {
@@ -45,7 +44,6 @@ function Dashboard() {
             return;
         }
 
-        // Read the latest saved name
         const name = localStorage.getItem("userName");
 
         if (name && name !== "undefined" && name !== "null") {
@@ -53,7 +51,7 @@ function Dashboard() {
         }
 
         fetchTodos();
-    }, [userId]);
+    }, [userId, navigate, fetchTodos]);
 
     // Add or update todo
     const handleSubmit = async (e) => {
@@ -133,9 +131,7 @@ function Dashboard() {
             "Are you sure you want to delete this todo?"
         );
 
-        if (!confirmDelete) {
-            return;
-        }
+        if (!confirmDelete) return;
 
         try {
             await axios.delete(`${API}/delete/${id}`);
@@ -178,11 +174,9 @@ function Dashboard() {
 
     return (
         <div className="bg-light min-vh-100">
-
             {/* Navbar */}
             <nav className="navbar navbar-dark bg-primary shadow-sm">
                 <div className="container flex-wrap gap-3">
-
                     <span className="navbar-brand fw-bold fs-4 mb-0">
                         ✓ Task Manager
                     </span>
@@ -199,21 +193,16 @@ function Dashboard() {
                             Logout
                         </button>
                     </div>
-
                 </div>
             </nav>
 
             <div className="container py-4">
-
                 {/* Summary Cards */}
                 <div className="row g-3 mb-4">
-
                     <div className="col-md-4">
                         <div className="card shadow-sm border-0">
                             <div className="card-body">
-                                <h6 className="text-muted">
-                                    Total Todos
-                                </h6>
+                                <h6 className="text-muted">Total Todos</h6>
                                 <h2 className="text-primary">
                                     {totalTodos}
                                 </h2>
@@ -224,9 +213,7 @@ function Dashboard() {
                     <div className="col-md-4">
                         <div className="card shadow-sm border-0">
                             <div className="card-body">
-                                <h6 className="text-muted">
-                                    Pending Todos
-                                </h6>
+                                <h6 className="text-muted">Pending Todos</h6>
                                 <h2 className="text-warning">
                                     {pendingTodos}
                                 </h2>
@@ -237,28 +224,23 @@ function Dashboard() {
                     <div className="col-md-4">
                         <div className="card shadow-sm border-0">
                             <div className="card-body">
-                                <h6 className="text-muted">
-                                    Completed Todos
-                                </h6>
+                                <h6 className="text-muted">Completed Todos</h6>
                                 <h2 className="text-success">
                                     {completedTodos}
                                 </h2>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 {/* Add / Update Form */}
                 <div className="card shadow-sm border-0 mb-4">
                     <div className="card-body p-4">
-
                         <h4 className="mb-3">
                             {editId ? "Update Todo" : "Add New Todo"}
                         </h4>
 
                         <form onSubmit={handleSubmit}>
-
                             <div className="mb-3">
                                 <label className="form-label">
                                     Todo Title
@@ -269,9 +251,7 @@ function Dashboard() {
                                     className="form-control"
                                     placeholder="Enter todo title"
                                     value={title}
-                                    onChange={(e) =>
-                                        setTitle(e.target.value)
-                                    }
+                                    onChange={(e) => setTitle(e.target.value)}
                                     required
                                 />
                             </div>
@@ -308,16 +288,13 @@ function Dashboard() {
                                     Cancel
                                 </button>
                             )}
-
                         </form>
-
                     </div>
                 </div>
 
                 {/* Todo List */}
                 <div className="card shadow-sm border-0">
                     <div className="card-body p-4">
-
                         <h4 className="mb-3">My Todos</h4>
 
                         {todos.length === 0 ? (
@@ -327,7 +304,6 @@ function Dashboard() {
                         ) : (
                             <div className="table-responsive">
                                 <table className="table table-hover align-middle">
-
                                     <thead className="table-primary">
                                         <tr>
                                             <th>Title</th>
@@ -340,7 +316,6 @@ function Dashboard() {
                                     <tbody>
                                         {todos.map((todo) => (
                                             <tr key={todo._id}>
-
                                                 <td className="fw-semibold">
                                                     {todo.title}
                                                 </td>
@@ -352,7 +327,8 @@ function Dashboard() {
                                                 <td>
                                                     <span
                                                         className={`badge ${
-                                                            todo.status === "Completed"
+                                                            todo.status ===
+                                                            "Completed"
                                                                 ? "bg-success"
                                                                 : "bg-warning text-dark"
                                                         }`}
@@ -363,14 +339,14 @@ function Dashboard() {
 
                                                 <td>
                                                     <div className="d-flex flex-wrap gap-2">
-
                                                         <button
                                                             className="btn btn-sm btn-outline-success"
                                                             onClick={() =>
                                                                 changeStatus(todo)
                                                             }
                                                         >
-                                                            {todo.status === "Completed"
+                                                            {todo.status ===
+                                                            "Completed"
                                                                 ? "Pending"
                                                                 : "Complete"}
                                                         </button>
@@ -387,26 +363,23 @@ function Dashboard() {
                                                         <button
                                                             className="btn btn-sm btn-outline-danger"
                                                             onClick={() =>
-                                                                handleDelete(todo._id)
+                                                                handleDelete(
+                                                                    todo._id
+                                                                )
                                                             }
                                                         >
                                                             Delete
                                                         </button>
-
                                                     </div>
                                                 </td>
-
                                             </tr>
                                         ))}
                                     </tbody>
-
                                 </table>
                             </div>
                         )}
-
                     </div>
                 </div>
-
             </div>
         </div>
     );
