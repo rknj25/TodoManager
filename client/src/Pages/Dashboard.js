@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 function Dashboard() {
     const navigate = useNavigate();
 
-    const API = "http://localhost:9999/api/todos";
+    const API = "https://todomanager-thgb.onrender.com/api/todos";
 
     const userId = localStorage.getItem("userId");
 

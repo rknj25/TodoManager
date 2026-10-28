@@ -24,7 +24,7 @@ const Register = () => {
 
         try {
             const res = await axios.post(
-                "http://localhost:9999/api/users/register",
+                "https://todomanager-thgb.onrender.com/api/users/register",
                 user
             );
 
